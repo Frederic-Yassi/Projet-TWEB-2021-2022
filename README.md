@@ -87,6 +87,10 @@ npm run ui
 
 Puis ouvre [http://127.0.0.1:3456](http://127.0.0.1:3456). Le panneau **Serveur** démarre à l’ouverture de la page. Clique **+ Client** pour un nouveau terminal `client+.js`. Fermer l’onglet arrête le serveur tchat et tous les clients.
 
+![IHM terminaux : serveur en haut, deux clients en bas](images/ihm-terminaux.png)
+
+Sur la capture : le serveur (`127.0.0.1:8080`) loggue connexions et JSON reçu (dont le mot de passe en clair). Chaque client a son terminal : nom, mot de passe, puis commandes (`s;Toto;ca va ?`). **+ Client** ajoute un panneau.
+
 Ne lance pas `npm run server` en même temps : les deux voudraient le port 8080.
 
 ### 1. Créer la base (une seule fois)
