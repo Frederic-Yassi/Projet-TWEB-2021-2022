@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tchat TWEB — terminaux</title>
+    <link rel="stylesheet" href="/vendor/xterm/css/xterm.css">
+    <style>
+        :root {
+            --bg: #0b0d10;
+            --panel: #12151a;
+            --border: #2a313c;
+            --text: #e8edf4;
+            --muted: #8b96a8;
+            --server: #3dd68c;
+            --client: #6cb6ff;
+            --danger: #ff6b7a;
+        }
+        * { box-sizing: border-box; }
+        html, body {
+            margin: 0;
+            height: 100%;
+            background: var(--bg);
+            color: var(--text);
+            font-family: "Cascadia Mono", "Consolas", "Courier New", monospace;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            background: #0e1116;
+        }
+        h1 {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+        .status {
+            color: var(--muted);
+            font-size: 12px;
+        }
+        .status strong { color: var(--server); font-weight: 600; }
+        .spacer { flex: 1; }
+        button {
+            font: inherit;
+            cursor: pointer;
+            border: 1px solid #3d6d9a;
+            background: #1a334c;
+            color: var(--client);
+            padding: 8px 14px;
+            border-radius: 4px;
+        }
+        button:hover { background: #21415f; }
+        button.icon {
+            padding: 2px 8px;
+            border-color: var(--border);
+            background: transparent;
+            color: var(--muted);
+        }
+        button.icon:hover { color: var(--danger); border-color: var(--danger); }
+        main {
+            flex: 1;
+            overflow: auto;
+            padding: 12px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            align-content: start;
+        }
+        #clients {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+            gap: 12px;
+        }
+        .pane {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            min-height: 280px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .pane.server { min-height: 220px; border-color: #1f4a36; }
+        .titlebar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+        }
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--client);
+        }
+        .pane.server .dot { background: var(--server); }
+        .titlebar span { flex: 1; }
+        .term {
+            flex: 1;
+            min-height: 200px;
+            padding: 6px 8px 8px;
+        }
+        .xterm, .xterm-viewport { height: 100%; }
+        .empty {
+            color: var(--muted);
+            padding: 24px;
+            text-align: center;
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Tchat TWEB</h1>
+        <div class="status">Serveur tchat : <strong>127.0.0.1:8080</strong> — IHM : <strong id="ui-host">127.0.0.1:3456</strong></div>
+        <div class="spacer"></div>
+        <button id="add-client" type="button">+ Client</button>
+    </header>
+    <main>
+        <section id="server-slot"></section>
+        <section id="clients"></section>
+    </main>
+
+    <script src="/vendor/xterm/lib/xterm.js"></script>
+    <script src="/vendor/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const terms = new Map();
+        document.getElementById("ui-host").textContent = location.host;
+
+        function mountPane(session, parent) {
+            if (terms.has(session.id)) return;
+
+            const pane = document.createElement("div");
+            pane.className = "pane " + session.type;
+            pane.dataset.id = session.id;
+            pane.innerHTML =
+                '<div class="titlebar">' +
+                    '<i class="dot"></i>' +
+                    "<span></span>" +
+                    (session.type === "client" ? '<button class="icon" type="button" title="Fermer">x</button>' : "") +
+                "</div>" +
+                '<div class="term"></div>';
+            pane.querySelector("span").textContent = session.name;
+            parent.appendChild(pane);
+
+            const termEl = pane.querySelector(".term");
+            const term = new Terminal({
+                cursorBlink: true,
+                fontSize: 13,
+                fontFamily: '"Cascadia Mono", Consolas, "Courier New", monospace',
+                theme: {
+                    background: "#12151a",
+                    foreground: "#e8edf4",
+                    cursor: session.type === "server" ? "#3dd68c" : "#6cb6ff",
+                },
+                scrollback: 2000,
+            });
+            const fit = new FitAddon.FitAddon();
+            term.loadAddon(fit);
+            term.open(termEl);
+            if (session.buffer) term.write(session.buffer);
+            requestAnimationFrame(() => {
+                fit.fit();
+                socket.emit("resize", { id: session.id, cols: term.cols, rows: term.rows });
+            });
+            term.onData((data) => socket.emit("input", { id: session.id, data }));
+            term.focus();
+
+            const closeBtn = pane.querySelector("button.icon");
+            if (closeBtn) {
+                closeBtn.addEventListener("click", () => socket.emit("kill", { id: session.id }));
+            }
+
+            terms.set(session.id, { term, fit, pane });
+        }
+
+        function dropPane(id) {
+            const entry = terms.get(id);
+            if (!entry) return;
+            entry.term.dispose();
+            entry.pane.remove();
+            terms.delete(id);
+        }
+
+        document.getElementById("add-client").addEventListener("click", () => {
+            socket.emit("add-client");
+        });
+
+        window.addEventListener("resize", () => {
+            for (const [id, entry] of terms) {
+                entry.fit.fit();
+                socket.emit("resize", { id, cols: entry.term.cols, rows: entry.term.rows });
+            }
+        });
+
+        socket.on("sessions", (list) => {
+            for (const session of list) {
+                const parent = session.type === "server"
+                    ? document.getElementById("server-slot")
+                    : document.getElementById("clients");
+                mountPane(session, parent);
+            }
+        });
+
+        socket.on("session", (session) => {
+            const parent = session.type === "server"
+                ? document.getElementById("server-slot")
+                : document.getElementById("clients");
+            mountPane(session, parent);
+        });
+
+        socket.on("output", ({ id, data }) => {
+            const entry = terms.get(id);
+            if (entry) entry.term.write(data);
+        });
+
+        socket.on("exit", ({ id }) => dropPane(id));
+
+        window.addEventListener("pagehide", () => socket.disconnect());
+        window.addEventListener("beforeunload", () => socket.disconnect());
+    </script>
+</body>
+</html>

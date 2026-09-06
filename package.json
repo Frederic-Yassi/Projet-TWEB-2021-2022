@@ -8,7 +8,8 @@
     "db:show": "node src/server/ShowTable.js",
     "db:clear": "node src/server/DeleteAllData.js",
     "server": "node src/server/server+.js",
-    "client": "node src/client/client+.js"
+    "client": "node src/client/client+.js",
+    "ui": "node ui/server.js"
   },
   "repository": {
     "type": "git",
@@ -26,10 +27,14 @@
     "bcrypt": "^6.0.0",
     "chalk": "^4.1.2",
     "debug": "^4.4.3",
+    "express": "^5.2.1",
     "inquirer": "^8.2.6",
+    "node-pty": "^1.1.0",
     "socket.io": "^2.5.1",
     "socket.io-client": "^2.5.0",
     "sqlite3": "^6.0.1",
+    "xterm": "^5.3.0",
+    "xterm-addon-fit": "^0.8.0",
     "yargs": "^17.7.2"
   }
 }

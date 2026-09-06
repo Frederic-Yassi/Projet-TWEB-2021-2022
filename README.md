@@ -6,7 +6,7 @@ Projet de l’UE *Web for Internet of Things* (ISTIC / IRISA), réalisé en bin�
 
 ## Fonctionnalités
 
-- Authentification par nom + mot de passe (hash bcrypt, minimum 8 caractères)
+- Authentification par nom + mot de passe (minimum 8 caractères). **Les mots de passe ne sont pas chiffrés** : ils s’affichent en clair à la saisie, et le serveur les loggue en clair une fois le canal AES déchiffré. En base, bcrypt ne fait qu’un hash (non réversible), ce n’est pas du chiffrement.
 - Messages privés (`s;`) et messages à tous (`b;`)
 - Groupes publics ou privés : création, invitation, kick, ban / unban
 - Historique des messages et des actions de groupe
@@ -20,7 +20,7 @@ Projet de l’UE *Web for Internet of Things* (ISTIC / IRISA), réalisé en bin�
 | Transport | [Socket.IO](https://socket.io/) 2.x |
 | Client CLI | [Inquirer](https://www.npmjs.com/package/inquirer), [Chalk](https://www.npmjs.com/package/chalk) |
 | Base | SQLite (`Main.db`) via `sqlite3` |
-| Mots de passe | `bcrypt` |
+| Mots de passe | Non chiffrés (saisie et logs en clair ; hash bcrypt en base seulement) |
 | Crypto | module `crypto` de Node.js |
 
 Le serveur écoute par défaut sur `127.0.0.1:8080`.
@@ -42,6 +42,9 @@ src/
     Func_DataBase.js         Accès SQLite
 startercode/                 Exemple TCP brut (TD3)
 websocket/                   Mini-tchat Socket.IO pédagogique
+ui/                          IHM : terminaux serveur + clients
+  server.js                  Lanceur PTY (port 3456)
+  public/index.html          Grille de terminaux
 ```
 
 ## Prérequis
@@ -74,6 +77,18 @@ npm install socket.io@2 socket.io-client@2 sqlite3 bcrypt inquirer chalk debug y
 
 Toujours à la racine. **Lancer le serveur avant les clients** : le client se connecte à `http://localhost:8080` et n’échange les clés que si le serveur est déjà up.
 
+### IHM terminaux (recommandé)
+
+Une page web ouvre le vrai serveur et autant de clients CLI que tu veux, chacun dans son terminal.
+
+```powershell
+npm run ui
+```
+
+Puis ouvre [http://127.0.0.1:3456](http://127.0.0.1:3456). Le panneau **Serveur** démarre à l’ouverture de la page. Clique **+ Client** pour un nouveau terminal `client+.js`. Fermer l’onglet arrête le serveur tchat et tous les clients.
+
+Ne lance pas `npm run server` en même temps : les deux voudraient le port 8080.
+
 ### 1. Créer la base (une seule fois)
 
 ```powershell
@@ -84,7 +99,7 @@ npm run db:create
 
 Le fichier `Main.db` est créé dans le dossier courant (la racine du repo).
 
-### 2. Lancer le serveur
+### 2. Lancer le serveur (sans IHM)
 
 ```powershell
 npm run server
@@ -107,7 +122,7 @@ Au premier lancement :
 
 1. Attendre le message de connexion sécurisée, puis **Entrée**
 2. Saisir un **nom**
-3. Saisir un **mot de passe** (≥ 8 caractères)
+3. Saisir un **mot de passe** (≥ 8 caractères) — il n’est **pas chiffré** (visible à l’écran, et visible dans les logs serveur après déchiffrement AES)
 
 Un compte inexistant est créé automatiquement. Un compte existant est authentifié. Ouvre autant de terminaux que d’utilisateurs.
 
