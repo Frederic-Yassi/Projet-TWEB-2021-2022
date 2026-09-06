@@ -381,7 +381,7 @@ exports.Format = class Format {
                             "sender-id": id,
                             "group": group_name,
                             "dest": receiver_name,
-                            "msg": " -- " + sender_name + " t'a invité à rejoindre le groupe -" + msg.group + "-. Appuie sur ENTREE pour faire ton choix.",
+                            "msg": " -- " + sender_name + " t'a invité à rejoindre le groupe -" + group_name + "-. Appuie sur ENTREE pour faire ton choix.",
                             "action": 'invite'
                         });
                     }

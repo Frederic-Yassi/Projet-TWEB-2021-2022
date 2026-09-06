@@ -38,7 +38,7 @@ exports.Sender=class Sender{
                 this.message=this.format.get()(params[0],params[1],params[2]);
                 break;
             case "join":
-                this.message=this.format.get()(params[0],params[1]);
+                this.message=this.format.get()(params[0],params[1],params[2]);
                 break;
             case "broadcastgroup":
                 this.message=this.format.get()(params[0],params[1],params[2]);
@@ -164,8 +164,8 @@ exports.Sender=class Sender{
                 this.socket.emit("secure",this.message);
             }
             else{
-                let iv = new Buffer.from(vector);//16 chars
-                let buf = new Buffer.from(this.message); // 32 chars
+                let iv = Buffer.from(vector);//16 chars
+                let buf = Buffer.from(this.message); // 32 chars
                 
                 let enc = encrypter(Secret, iv, buf);
                 
@@ -205,8 +205,8 @@ exports.Sender=class Sender{
                     this.socket.emit("secure",this.message);
             }
             else{
-                let iv = new Buffer.from(vector);//16 chars
-                let buf = new Buffer.from(this.message); // 32 chars
+                let iv = Buffer.from(vector);//16 chars
+                let buf = Buffer.from(this.message); // 32 chars
                 let enc = encrypter(Secret, iv, buf);
                
 

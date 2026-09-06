@@ -9,6 +9,7 @@ const { decrypter } = require('../Modules/Func_Crypt');
 
 //Dans ce fichier on cree notre server
 
+const http = require("http");
 const { env } = require('process');
 env.DEBUG = "server";
 env.PORT = 8080;            //port  
@@ -22,6 +23,9 @@ var args = process.argv;
 const debug = require("debug");
 const logServer = debug("server");
 console.log('Serveur en marche ...');
+
+let port = env.PORT;
+let host = env.HOST;
 
 // Passage d'arguments par ligne de commande
 for (let arg of args) {
@@ -45,7 +49,10 @@ for (let elementEnv of envn) {
     }
 }
 
-const server = require("socket.io")(8080, "127.0.0.1");
+// Socket.IO 2 attend (httpServer) ou (port, optionsObject), pas (port, host)
+const httpServer = http.createServer();
+const server = require("socket.io")(httpServer);
+httpServer.listen(Number(port), host);
 
 var sender;
 var format;
@@ -686,7 +693,7 @@ server.on("connection", (socket) => { //connection du server
 
                                             });
                                         });
-                                        fonction.SaveAction("unban", msg.from, msg.dest, msg.reason);
+                                        fonction.SaveAction(msg.group, "unban", msg.from, msg.dest, msg.reason);
                                     }
                                 });
                             }

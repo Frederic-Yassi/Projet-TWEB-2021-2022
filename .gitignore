@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+
+# SQLite (données locales)
+Main.db
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDE / éditeurs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Builds natifs (sqlite3, bcrypt, node-gyp)
+build/
+*.node
+
+# Couverture / caches
+coverage/
+.nyc_output/
+.cache/

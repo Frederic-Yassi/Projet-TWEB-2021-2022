@@ -25,6 +25,9 @@ exports.Command = class Command {
 
     //Cette fonction permet de récupérer et de traiter la commande saisi
     static getCommandPar(texte) {
+        if (texte == null || String(texte).trim() === '') {
+            return '';
+        }
         //s;david;hello     
         if (texte.slice(0, 2) == "s;") {
             texte = texte.split(";");
@@ -54,8 +57,8 @@ exports.Command = class Command {
         //cg;wob
         if (texte.slice(0, 3) == "cg;") {
             texte = texte.split(";");
-            if (texte.length == 2) {
-                if (texte[2] == "") {
+            if (texte.length == 2 || texte.length == 3) {
+                if (texte[2] == "" || texte[2] == undefined) {
                     texte[2] = "yes";
                 }
                 return ["creategroupe", texte[1], texte[2]];

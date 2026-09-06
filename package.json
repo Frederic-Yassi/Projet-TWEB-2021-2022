@@ -1,0 +1,35 @@
+{
+  "name": "projet-tweb-2021-2022",
+  "version": "1.0.0",
+  "description": "Application de messagerie en ligne de commande (Node.js) : messages privés, broadcast et groupes, avec persistance SQLite et chiffrement des échanges.",
+  "main": "index.js",
+  "scripts": {
+    "db:create": "node src/server/CreateDataBase.js",
+    "db:show": "node src/server/ShowTable.js",
+    "db:clear": "node src/server/DeleteAllData.js",
+    "server": "node src/server/server+.js",
+    "client": "node src/client/client+.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Frederic-Yassi/Projet-TWEB-2021-2022.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Frederic-Yassi/Projet-TWEB-2021-2022/issues"
+  },
+  "homepage": "https://github.com/Frederic-Yassi/Projet-TWEB-2021-2022#readme",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "chalk": "^4.1.2",
+    "debug": "^4.4.3",
+    "inquirer": "^8.2.6",
+    "socket.io": "^2.5.1",
+    "socket.io-client": "^2.5.0",
+    "sqlite3": "^6.0.1",
+    "yargs": "^17.7.2"
+  }
+}

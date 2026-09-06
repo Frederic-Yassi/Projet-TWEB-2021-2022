@@ -134,10 +134,10 @@ ioClient.on('data', function (enc) { //code à executer en cas d'evenement data
             console.log(data.msg);
             break;
         case "deldata": //suppression de données
-            console.log("deldata");
+            console.log(data.msg);
             break;
         case "getdata": //recuperation des données
-            console.log("deldata");
+            console.log(data.msg);
             break; 
            
     }
@@ -245,7 +245,6 @@ function ask() { //fonction principale
             let c = Command.getCommandPar(answers.commande);
             switch (c) {
                 case '':
-                    passed = true;
                     break;
                 case 'error':
                     console.log("Commande invalide");

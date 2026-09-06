@@ -389,7 +389,7 @@ exports.GetData=function(nom,f){//obtenir les messages
         }
     });
 
-    db.all(`SELECT * FROM Messages WHERE Sender_Name ="${nom} OR Receiver_Name="${nom}"`,(err,data)=>{
+    db.all(`SELECT * FROM Messages WHERE Sender_Name ="${nom}" OR Receiver_Name="${nom}"`,(err,data)=>{
         if(err){
             throw err 
         }
